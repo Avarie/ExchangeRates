@@ -5,4 +5,4 @@ bin
 obj
 packages
 v16
-/CurrencyAggregator/appsettings.json
+/ExchangeRates/appsettings.json
