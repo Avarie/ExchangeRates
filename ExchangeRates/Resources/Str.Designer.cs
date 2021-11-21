@@ -295,7 +295,7 @@ namespace ExchangeRates.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Currency Aggregator.
+        ///   Looks up a localized string similar to Ukrainian Exchange Rates.
         /// </summary>
         public static string Title {
             get {
