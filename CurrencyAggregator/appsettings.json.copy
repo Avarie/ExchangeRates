@@ -1,0 +1,25 @@
+{
+  "Logging": {
+    "MinimumLevel": "Information",
+    "LogLevel": {
+      "Default": "Information"
+    },
+    "EventLog": {
+      "LogLevel": {
+        "Default": "Information"
+      }
+    }
+  },
+  /*"Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },*/
+  "AllowedHosts": "*",
+
+  "ConnectionStrings": {
+    "CurrencyData": "server=127.0.0.1;user=sa;password=PASSWORD_SET_HERE;database=chart.pp.ua"
+  }
+}

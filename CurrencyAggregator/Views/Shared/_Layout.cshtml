@@ -1,0 +1,44 @@
+﻿@using CurrencyAggregator.Resources
+@using CurrencyAggregator.Sources
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Str.Title</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/0.8.2/css/flag-icon.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body onload="onstart()">
+@*<body onload="onstart(@WebParameters.Currencies, @WebParameters.Operations, @WebParameters.Range)">*@
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container" style="display:block">
+            @* <p class="navbar-brand text-center">@Str.Title</p> *@
+            <p class="navbar-brand text-center" style="display:block">@Str.Title</p>
+        </div>
+        @await Html.PartialAsync("_SelectLanguagePartial")
+    </nav>
+</header>
+<div class="container">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="border-top footer text-muted">
+    <div class="container">
+        &copy; 2020 - @Str.CompanyTitle
+    </div>
+</footer>
+@*<script src="~/lib/jquery/dist/jquery.min.js"></script>*@
+@* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+<script src="~/lib/fingerprintjs2/fingerprint2.js"></script>
+<script src="~/lib/canvas-gauges/gauge.min.js"></script>
+@RenderSection("Scripts", required: false)
+<script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

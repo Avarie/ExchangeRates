@@ -1,0 +1,70 @@
+﻿@using CurrencyAggregator.Sources
+@using CurrencyAggregator.Resources
+@using Microsoft.AspNetCore.Http
+
+<div>
+    <div class="form-check" id="buttons">
+        <select class="form-control-sm" id="selCurrencies" onchange="update()">
+            @foreach (var t in WebParameters.Currencies)
+            {
+                <option title="@t.Description" value="@t.Key">@t.Title</option>
+            }
+        </select>
+
+        <select class="form-control-sm" id="selRange" onchange="update()">
+            @foreach (var t in WebParameters.Range)
+            {
+                <option value="@t.Key">@t.Value</option>
+            }
+        </select>
+
+        @foreach (var t in WebParameters.Operations)
+        {
+            <span class="px-5">
+                <input class="form-check-input" type="checkbox" id="@t.Key" onclick='update("@t.Key")' />
+                <label class="form-check-label" for="@t.Key" title="@t.Description">
+                    @t.Title
+                </label>
+            </span>
+        }
+    </div>
+
+    <div class="chart-container" style="height: 400px"><canvas id="canvas"></canvas></div>
+
+    <div class="container-fluid mt-4 mb-4" id="panicMeters">
+        <input id="volatilityBtn"
+               type="button"
+               value="@Str.VolatilityBtnTitle_Hide"
+               class="btn float-right"
+               showtitle="@Str.VolatilityBtnTitle_Show"
+               hidetitle="@Str.VolatilityBtnTitle_Hide"
+               onclick="showVolatility()" />
+        
+        <h6 class="text-center">
+            @Str.VolatilityMetersTitle
+        </h6>
+    </div>
+
+    <div class="container-fluid mt-4" style="display: flex; justify-content: space-between;">
+        @foreach (var t in CurrencyTypes.Types)
+        {
+            <canvas id="canvas-@t"></canvas>
+        }
+    </div>
+
+    <div class="chart-container" id="volatilityDiv">
+        <div style="height: 400px">
+            <canvas id="volatility"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js" integrity="sha256-qSIshlknROr4J8GMHRlW3fGKrPki733tLq+qeMCR05Q=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" integrity="sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.css" integrity="sha256-IvM9nJf/b5l2RoebiFno92E5ONttVyaEEsdemDC6iQA=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js" integrity="sha256-arMsf+3JJK2LoTGqxfnuJPFTU4hAK57MtIPdFpiHXOU=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
+    @* <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script> *@
+}
+
