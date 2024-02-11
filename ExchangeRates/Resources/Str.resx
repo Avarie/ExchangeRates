@@ -180,6 +180,9 @@
   <data name="SourceTitle_InvestingCom" xml:space="preserve">
     <value>Investing.Com</value>
   </data>
+  <data name="SourceTitle_MonoBank" xml:space="preserve">
+    <value>MonoBank</value>
+  </data>
   <data name="SourceTitle_NBU" xml:space="preserve">
     <value>NBU</value>
   </data>

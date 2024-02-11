@@ -9,10 +9,8 @@ namespace ExchangeRates.Tasks
             RecurringJob.RemoveIfExists(nameof(GetSourceDataTask));
             RecurringJob.AddOrUpdate<GetSourceDataTask>(nameof(GetSourceDataTask),
                 task => task.Run(JobCancellationToken.Null),
-                //Cron.Minutely()
                 Cron.Hourly()
                 );
-
 
             RecurringJob.RemoveIfExists(nameof(PrepareDataTask));
             RecurringJob.AddOrUpdate<PrepareDataTask>(nameof(PrepareDataTask),

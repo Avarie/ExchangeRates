@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Linq;
 using ExchangeRates.Models;
+using ExchangeRates.Sources;
 using ExchangeRates.Repository;
 using System.Collections.Generic;
-using System.Linq;
-using ExchangeRates.Sources;
 using Range = ExchangeRates.Models.Range;
 
 namespace ExchangeRates.Service
@@ -19,10 +19,6 @@ namespace ExchangeRates.Service
 
         public IQueryable<CurrencyItem> GetAll(Range range)
         {
-            var all = _repository.GetAll();
-
-            if (range == Range.A) return all;
-
             var fromDate = range switch
             {
                 Range.D => DateTime.Now.AddDays(-1),
@@ -30,15 +26,19 @@ namespace ExchangeRates.Service
                 Range.W => DateTime.Now.AddDays(-7),
                 Range.M => DateTime.Now.AddMonths(-1),
                 Range.Y => DateTime.Now.AddMonths(-12),
+                _ => DateTime.MinValue,
             };
 
-            return all.Where(x => x.Date >= fromDate);
+            return _repository.GetAll().Where(x => x.Date >= fromDate);
         }
 
-        public AggregatedDataResult AggregateData(Range range, string[] currencyTypes = null)
+        public AggregatedDataResult AggregateData(Range range, string[] currencyTypes)
         {
             var set = GetAll(range);
-            currencyTypes ??= CurrencyTypes.Types;
+            currencyTypes ??= CurrencyTypes.RelatedCurrencyTypes;
+
+            // in case if db is outdated and doesn't have related data for the selected range
+            if (!set.Any()) return new AggregatedDataResult();
 
             var min = set.Min(x => x.Date);
             var max = set.Max(x => x.Date);
@@ -55,16 +55,16 @@ namespace ExchangeRates.Service
                 return new CurrencyItem
                 {
                     Buy = last?.Buy ?? 0,
-                    Sell = last?.Sell ?? 0m,
+                    Sell = last?.Sell ?? 0
                 };
             });
 
             var averageItemsFn = new Func<List<CurrencyItem>, CurrencyItem>(items =>
              new CurrencyItem
-                {
-                    Buy = items.Average(x => x.Buy),
-                    Sell = items.Average(x => x.Sell)
-                }
+             {
+                 Buy = items.Average(x => x.Buy),
+                 Sell = items.Average(x => x.Sell)
+             }
             );
 
             var settings = range switch
@@ -77,14 +77,14 @@ namespace ExchangeRates.Service
                 _ => new AggregateSet(minDateMonth, maxDateMonth, dt => dt.AddMonths(1), range, averageItemsFn)
             };
 
-            var result =  AggregateData(set, currencyTypes, settings);
+            var result = AggregateData(set, currencyTypes, settings);
 
             result.SourceNames = result.SourceNames.Distinct().ToList();
 
             return result;
         }
 
-        AggregatedDataResult AggregateData(IQueryable<CurrencyItem> set, string[] currencyTypes, AggregateSet s)
+        private AggregatedDataResult AggregateData(IQueryable<CurrencyItem> set, string[] currencyTypes, AggregateSet s)
         {
             var result = new AggregatedDataResult();
 
@@ -120,36 +120,5 @@ namespace ExchangeRates.Service
 
             return result;
         }
-
-        class AggregateSet
-        {
-            public AggregateSet(DateTime startDate, DateTime maxDate, Func<DateTime, DateTime> addDateDiff, Range range, Func<List<CurrencyItem>, CurrencyItem> calcCurrencyItemFunc)
-            {
-                StartDate = startDate;
-                MaxDate = maxDate;
-                AddDateDiff = addDateDiff;
-                DateFormat = GetDateFormatFunc(range);
-                CalcCurrencyItemFunc = calcCurrencyItemFunc;
-            }
-
-            public DateTime StartDate { get; }
-            public DateTime MaxDate { get; }
-            public Func<DateTime, DateTime> AddDateDiff { get; }
-            public Func<DateTime, DateTime> DateFormat { get; }
-            public Func<List<CurrencyItem>, CurrencyItem> CalcCurrencyItemFunc { get; }
-
-            private Func<DateTime, DateTime> GetDateFormatFunc(Range range)
-            {
-                var hourFn = new Func<DateTime, DateTime>(dt => new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0));
-                var dayFn = new Func<DateTime, DateTime>(dt => new DateTime(dt.Year, dt.Month, dt.Day, 12, 0, 0));
-                var monthFn = new Func<DateTime, DateTime>(dt => new DateTime(dt.Year, dt.Month, 1, 12, 0, 0));
-
-                return range switch
-                {
-                    Range.D => hourFn, Range.T => hourFn, Range.W => dayFn, Range.M => dayFn, Range.Y => dayFn, _ => monthFn
-                };
-            }
-        }
-
     }
 }

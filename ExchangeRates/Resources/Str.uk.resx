@@ -180,6 +180,9 @@
   <data name="SourceTitle_InvestingCom" xml:space="preserve">
     <value>Форекс баригі</value>
   </data>
+  <data name="SourceTitle_MonoBank" xml:space="preserve">
+    <value>МоноБанка</value>
+  </data>
   <data name="SourceTitle_NBU" xml:space="preserve">
     <value>НацБанк</value>
   </data>

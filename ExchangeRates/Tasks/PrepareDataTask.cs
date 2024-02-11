@@ -1,25 +1,21 @@
-﻿using System;
+﻿using Hangfire;
 using System.Linq;
-using ExchangeRates.Controllers;
-using ExchangeRates.Helpers;
 using ExchangeRates.Models;
-using ExchangeRates.Repository;
+using ExchangeRates.Helpers;
 using ExchangeRates.Service;
 using ExchangeRates.Sources;
-using Hangfire;
-using Microsoft.Extensions.Logging;
+using ExchangeRates.Repository;
 using Range = ExchangeRates.Models.Range;
 
 namespace ExchangeRates.Tasks
 {
     public class PrepareDataTask
     {
-        private readonly ILogger<DataController> _logger;
         private readonly ICurrencyRepository _repo;
         private readonly CurrencyService _service;
-        public PrepareDataTask(ILogger<DataController> logger, ICurrencyRepository currencyRepository, CurrencyService service)
+
+        public PrepareDataTask(ICurrencyRepository currencyRepository, CurrencyService service)
         {
-            _logger = logger;
             _repo = currencyRepository;
             _service = service;
         }
@@ -28,7 +24,7 @@ namespace ExchangeRates.Tasks
         {
             token.ThrowIfCancellationRequested();
 
-            var aggregated = _service.AggregateData(Range.M, CurrencyTypes.Types);
+            var aggregated = _service.AggregateData(Range.M, CurrencyTypes.RelatedCurrencyTypes);
             var assets = VolatilityHelper.CalculateVolatility(aggregated);
 
             _repo.CleanPrepared();
@@ -36,8 +32,6 @@ namespace ExchangeRates.Tasks
             _repo.SavePrepared(PreparedDataItemKeys.VolatilityDataSets, assets);
             _repo.SavePrepared(PreparedDataItemKeys.VolatilityPercents, assets.Select(x => new { id = x.label, title = WebParameters.GetCurrencyTitle(x.label), value = VolatilityHelper.CalculateVolatilityPercentage(x) }));
             _repo.Save();
-
-            _logger.LogDebug("Prepared data is saved !!!1");
         }
     }
 }

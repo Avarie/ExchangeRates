@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace ExchangeRates.Helpers
 {
     public static class ColorHelper
     {
-        private static List<string> AddColors(params string[] arr) => arr.OrderBy(a => Guid.NewGuid()).ToList();
+        private static List<string> AddColors(params string[] arr) => arr.OrderBy(_ => Guid.NewGuid()).ToList();
 
         public static readonly Dictionary<ChartColor, List<string>> Colors = new Dictionary<ChartColor, List<string>>
         {
@@ -18,7 +18,7 @@ namespace ExchangeRates.Helpers
         {
             if (index > Colors[color].Count - 1)
             {
-                index = index % (Colors[color].Count - 1);
+                index %= (Colors[color].Count - 1);
             }
 
             return Colors[color][index];
@@ -27,7 +27,7 @@ namespace ExchangeRates.Helpers
 
     public enum ChartColor
     {
-        Red, 
+        Red,
         Green
     }
 }

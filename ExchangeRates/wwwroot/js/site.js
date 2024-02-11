@@ -1,58 +1,55 @@
-﻿var v = {
+﻿let v = {
     block: "block",
     none: "none",
     showtitle: "showtitle",
     hidetitle: "hidetitle",
-    volatilityBtn: 'volatilityBtn',
-    volatilityDiv: 'volatilityDiv'
-}
+    volatilityBtn: "volatilityBtn",
+    volatilityDiv: "volatilityDiv"
+};
 
-var gerfin = async () => {
+let gerfin = async () => {
     if (typeof Fingerprint2 === "undefined") return;
 
     await setTimeout(Fingerprint2.getV18({}, async (result, components) => {
-
         var st_diresu = window.localStorage.getItem('di_resu');
         var resu = st_diresu ? JSON.parse(st_diresu) : {};
         if (!resu[result]) {
             resu[result] = { c: 0, i: new Date() };
         } else {
-             resu[result].c++;
+            resu[result].c++;
         }
         resu[result].d = new Date();
         window.localStorage.setItem('di_resu', JSON.stringify(resu));
 
         await fetchData('/Data/GerFinDi', resu);
-
     }), 500);
 }
 
-var onstart = () => {
+let onstart = () => {
     if (window.requestIdleCallback) requestIdleCallback(() => { gerfin(); });
     else gerfin();
 }
 
-var chart = {}
-var volatility = {}
+let chart = {};
+let volatility = {};
 
 var storedRange = null;
 
-var getParam = (id) => document.getElementById(id).checked ? id : null;
-var getDisplay = (id) => document.getElementById(id).style.display;
-var setParam = (id, val) => document.getElementById(id).checked = val;
-var setDisplay = (id, val) => document.getElementById(id).style.display = val;
+let getParam = (id) => document.getElementById(id).checked ? id : null;
+let getDisplay = (id) => document.getElementById(id).style.display;
+let setParam = (id, val) => document.getElementById(id).checked = val;
+let setDisplay = (id, val) => document.getElementById(id).style.display = val;
 
-var showVolatility = (value) =>
-{
-    var previousVal = document.getElementById(v.volatilityDiv).style.display;
-    var newVal = previousVal === v.block ? v.none : v.block;
+let showVolatility = (value) => {
+    let previousVal = document.getElementById(v.volatilityDiv).style.display;
+    let newVal = previousVal === v.block ? v.none : v.block;
 
     if (typeof value !== "undefined") {
         newVal = value;
         previousVal = newVal === v.block ? v.none : v.block;
     }
 
-    var btnTitle = document.getElementById(v.volatilityBtn).getAttribute(v.showtitle);
+    let btnTitle = document.getElementById(v.volatilityBtn).getAttribute(v.showtitle);
 
     if (previousVal === v.block) {
         newVal = v.none;
@@ -68,26 +65,25 @@ var showVolatility = (value) =>
     document.getElementById(v.volatilityDiv).style.display = newVal;
 
     getControlSet();
-}
+};
 
-var setSelectedElement = (id, valueToSelect) => {
+let setSelectedElement = (id, valueToSelect) => {
     let element = document.getElementById(id);
     element.value = valueToSelect;
-}
+};
 
-var restoreSettings = (settings) => {
+let restoreSettings = (settings) => {
     setSelectedElement('selCurrencies', settings['Currencies'][0]);
     setSelectedElement('selRange', settings['Range']);
-    for (var operation in settings['Operations']) {
+    for (let operation in settings['Operations']) {
         document.getElementById(settings['Operations'][operation]).checked = true;
     }
     showVolatility(settings.Volatility);
-}
-
+};
 
 function pArray(params) {
-    var r = [];
-    for (var p in params) {
+    let r = [];
+    for (let p in params) {
         r.push(getParam(params[p]));
     }
     return r.filter(p => !!p);
@@ -96,17 +92,18 @@ function pArray(params) {
 function getParams(range) {
     storedRange = range || storedRange;
 
-    var result = {
+    let result = {
         Currencies: pArray(["USD", "EUR", "GBP", "CNY"]),
         Operations: pArray(["BUY", "SELL", "DIFF"]),
         Range: range || storedRange || 'W',
         Volatility: getDisplay(v.volatilityDiv)
-    }
+    };
 
     window.localStorage.setItem('smarap', JSON.stringify(result));
     return result;
 }
 
+// TODO: remake to GET
 var fetchData = (url, body) => {
     body = body || {};
     return fetch(url, {
@@ -127,7 +124,6 @@ var getChartData = async (params) => {
 }
 
 var getVolatilityData = async () => {
-
     var data = await fetchData('/Data/GetVolatility');
 
     data.labels = JSON.parse(data.labels);
@@ -152,7 +148,6 @@ var update = async (item) => {
 }
 
 var getControlSet = () => {
-
     var result = {
         Currencies: [document.getElementById('selCurrencies').value],
         Operations: pArray(["BUY", "SELL", "DIFF"]),
@@ -293,22 +288,26 @@ var initGauge = (item) => {
         needleShadow: false,
 
         borderShadowWidth: 0
-
     }).draw();
 
     gauge.value = item.value;
     gauge.id = item.id;
-}
+};
 
-var detectMobile = () => (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+let detectMobile = () => (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
 
 async function init() {
-
     setDisplay("panicMeters", "none");
     setDisplay("buttons", "none");
 
-    var mobileMode = detectMobile();
-    var params = JSON.parse(window.localStorage.getItem('smarap')) || { Currencies: ["USD"], Operations: ["BUY"], Range: "W", Volatility: v.none };
+    let mobileMode = detectMobile();
+    let params = JSON.parse(window.localStorage.getItem("smarap")) ||
+    {
+        Currencies: ["USD"],
+        Operations: ["BUY"],
+        Range: "W",
+        Volatility: v.none
+    };
 
     restoreSettings(params);
 
@@ -328,7 +327,7 @@ async function init() {
 init();
 
 Array.prototype.forEach = Array.prototype.forEach || function (cb) {
-    var i = 0, s = this.length;
+    let i = 0, s = this.length;
     for (; i < s; i++) {
         cb && cb(this[i], i, this);
     }

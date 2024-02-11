@@ -1,20 +1,19 @@
 using System;
-using System.Globalization;
-using ExchangeRates.Models;
-using ExchangeRates.Repository;
-using ExchangeRates.Tasks;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.SqlServer;
+using ExchangeRates.Tasks;
+using System.Globalization;
+using ExchangeRates.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ExchangeRates
 {
@@ -38,8 +37,9 @@ namespace ExchangeRates
                 .AddViewLocalization();
 
             services.AddControllersWithViews();
-            services.RegisterImplementations();
 
+            services.RegisterImplementations();
+            services.RegisterSources();
 
             var configurationSection = Configuration.GetSection("ConnectionStrings:CurrencyData");
             services.AddDbContext<CurrencyDbContext>(options => options.UseSqlServer(configurationSection.Value));
@@ -53,6 +53,11 @@ namespace ExchangeRates
                 };
 
                 configuration.UseSqlServerStorage(configurationSection.Value, options);
+            });
+
+            services.AddHangfireServer(options =>
+            {
+                options.WorkerCount = 1;
             });
 
             var enUSCulture = "en-US";
@@ -69,7 +74,7 @@ namespace ExchangeRates
                 options.SupportedCultures = supportedCultures;
                 options.SupportedUICultures = supportedCultures;
 
-                options.AddInitialRequestCultureProvider(new CustomRequestCultureProvider(async context => 
+                options.AddInitialRequestCultureProvider(new CustomRequestCultureProvider(async context =>
                 {
                     // My custom request culture logic
                     return new ProviderCultureResult("uk");
@@ -80,7 +85,6 @@ namespace ExchangeRates
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -98,7 +102,6 @@ namespace ExchangeRates
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor |
                                    ForwardedHeaders.XForwardedProto
             });
-
 
             app.UseSession();
             // app.UseMvc(routes =>
@@ -123,7 +126,6 @@ namespace ExchangeRates
                 SupportedUICultures = supportedCultures
             });
 
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -140,15 +142,10 @@ namespace ExchangeRates
 
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
-                Authorization = new[] {new LocalRequestsOnlyAuthorizationFilter()}
+                Authorization = new[] { new LocalRequestsOnlyAuthorizationFilter() }
             });
 
-            app.UseHangfireServer(new BackgroundJobServerOptions
-            {
-                WorkerCount = 1
-            });
-
-            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute {Attempts = 5});
+            GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 5 });
             HangfireJobScheduler.ScheduleJobs();
         }
     }

@@ -1,43 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using ExchangeRates.Helpers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.Diagnostics;
 using ExchangeRates.Models;
-using ExchangeRates.Resources;
+using ExchangeRates.Helpers;
 using ExchangeRates.Service;
 using ExchangeRates.Sources;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
-using ExchangeRates.Repository;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using ExchangeRates.Resources;
+using Microsoft.AspNetCore.Mvc;
+using ExchangeRates.Repository;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Localization;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ExchangeRates.Controllers
 {
     public class DataController : Controller
     {
-        private readonly ILogger<DataController> _logger;
         private readonly CurrencyService _service;
         private readonly ICurrencyRepository _currencyRepository;
         private readonly IVisitorRepository _visitorRepository;
 
-        public DataController(ILogger<DataController> logger, CurrencyService service, ICurrencyRepository currencyRepository, IVisitorRepository visitorRepository)
+        public DataController(CurrencyService service, ICurrencyRepository currencyRepository, IVisitorRepository visitorRepository)
         {
-            _logger = logger;
             _service = service;
             _currencyRepository = currencyRepository;
             _visitorRepository = visitorRepository;
         }
-        
+
         public ChartResult GetData([FromBody] object data)
         {
             var request = JsonConvert.DeserializeObject<RequestParams>(JsonSerializer.Serialize(data));
 
             var aggregated = _service.AggregateData(request.Range, request.Currencies.ToArray());
+
+            RemoveUnstableBrokenSources(aggregated);
 
             var assets = new List<ChartItem>();
 
@@ -51,8 +50,19 @@ namespace ExchangeRates.Controllers
 
             ChartHelper.FillMissedData(assets, aggregated.Dates);
 
-            return new ChartResult(Str.ChartTitle, aggregated.Dates.Select(request.FormatDate).ToList(), assets);
+            if (request.Operations.Contains("BUY"))
+            {
+                assets.Remove(assets.Find(x => x.label == SourceListHelper.ObmenkaWholesale));
+            }
 
+            return new ChartResult(Str.ChartTitle, aggregated.Dates.Select(request.FormatDate).ToList(), assets);
+        }
+
+        private static void RemoveUnstableBrokenSources(AggregatedDataResult aggregated)
+        {
+            aggregated.SourceNames.Remove(SourceListHelper.InvestingCom);
+            aggregated.SourceNames.Remove(SourceListHelper.ObmenkaWholesale);
+            aggregated.SourceNames.Remove(SourceListHelper.ObmenkaRetail);
         }
 
         public async Task<object> GetVolatility()
@@ -76,7 +86,7 @@ namespace ExchangeRates.Controllers
 
             return LocalRedirect(returnUrl);
         }
-        
+
         public async Task<object> GerFinDi([FromBody] Dictionary<string, FingerPrintData> gerfin)
         {
             var ip = Request.HttpContext.Connection.RemoteIpAddress?.ToString();

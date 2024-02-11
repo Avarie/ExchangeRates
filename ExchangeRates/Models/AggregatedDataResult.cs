@@ -5,8 +5,8 @@ namespace ExchangeRates.Models
 {
     public class AggregatedDataResult
     {
-        public List<CurrencyItem> Items { get; set; } = new List<CurrencyItem>();
-        public List<DateTime> Dates { get; set; } = new List<DateTime>();
-        public List<string> SourceNames { get; set; } = new List<string>();
+        public List<CurrencyItem> Items { get; set; } = [];
+        public List<DateTime> Dates { get; set; } = [];
+        public List<string> SourceNames { get; set; } = [];
     }
 }

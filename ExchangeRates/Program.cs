@@ -1,8 +1,7 @@
 using System;
+using Serilog;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Serilog;
-using Serilog.Events;
 
 namespace ExchangeRates
 {
@@ -11,8 +10,8 @@ namespace ExchangeRates
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-
                 .Enrich.FromLogContext().MinimumLevel.Information()
+                //.Enrich.FromLogContext().MinimumLevel.Debug()
                 .WriteTo.File(@"C:\temp\chart.pp.ua.log")
                 .CreateLogger();
 
@@ -21,12 +20,10 @@ namespace ExchangeRates
                 Log.Information("Starting up");
                 CreateHostBuilder(args).Build().Run();
             }
-
             catch (Exception ex)
             {
                 Log.Fatal(ex, "Application start-up failed");
             }
-
             finally
             {
                 Log.CloseAndFlush();
@@ -37,9 +34,7 @@ namespace ExchangeRates
 
             Host.CreateDefaultBuilder(args)
                 .UseSerilog()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
+            ;
     }
 }

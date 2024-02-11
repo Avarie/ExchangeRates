@@ -21,7 +21,7 @@ namespace ExchangeRates.Helpers
         {
             var result = new List<ChartItem>();
 
-            foreach (var currency in CurrencyTypes.Types)
+            foreach (var currency in CurrencyTypes.RelatedCurrencyTypes)
             {
                 var dataSets = data.Items.Where(x => x.Type == currency).ToList();
                 var averageParam = dataSets.SelectMany(x => new[]{ x.Buy, x.Sell }).Average();

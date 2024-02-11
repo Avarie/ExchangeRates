@@ -4,6 +4,7 @@ namespace ExchangeRates.Helpers
 {
     public static class SourceListHelper
     {
+        public const string MonoBank = "MonoBank";
         public const string NBU = "NBU";
         public const string PrivatBankCash = "PrivatBank Cash";
         public const string PrivatBankCashLess = "PrivatBank CashLess";
@@ -18,7 +19,8 @@ namespace ExchangeRates.Helpers
             PrivatBankCashLess => Str.SourceTitle_PrivatBankCashLess,
             ObmenkaRetail => Str.SourceTitle_ObmenkaRetail,
             ObmenkaWholesale => Str.SourceTitle_ObmenkaWholesale,
-            InvestingCom => Str.SourceTitle_InvestingCom
+            InvestingCom => Str.SourceTitle_InvestingCom,
+            MonoBank => Str.SourceTitle_MonoBank
         };
     }
 }

@@ -1,20 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using ExchangeRates.Helpers;
 using ExchangeRates.Models;
+using ExchangeRates.Helpers;
 using ExchangeRates.Resources;
+using System.Collections.Generic;
 
 namespace ExchangeRates.Sources
 {
     public static class CurrencyTypes
     {
+        public const string UAH = "UAH";
+
         public const string USD = "USD";
         public const string EUR = "EUR";
         public const string CNY = "CNY";
         public const string GBP = "GBP";
 
-        public static string[] Types => new[] {USD, EUR, GBP, CNY};
+        public static string[] RelatedCurrencyTypes => new[] { USD, EUR, GBP, CNY };
 
         public static string GetVolatilityColor(string currency) => currency switch
         {
@@ -24,7 +26,35 @@ namespace ExchangeRates.Sources
             CNY => "gold"
         };
     }
-    
+
+    /// <summary>
+    /// https://www.iban.com/currency-codes
+    /// </summary>
+    public static class CurrencyCodes
+    {
+        public const int UAH = 980;
+
+        public const int USD = 840;
+        public const int EUR = 978;
+        public const int CNY = 156;
+        public const int GBP = 826;
+
+        public static int[] RelatedCurrencyTypes => new[] { USD, EUR, GBP, CNY };
+
+        public static string GetTypeByCode(int code)
+        {
+            return code switch
+            {
+                USD => CurrencyTypes.USD,
+                EUR => CurrencyTypes.EUR,
+                CNY => CurrencyTypes.CNY,
+                GBP => CurrencyTypes.GBP,
+                UAH => CurrencyTypes.UAH,
+                _ => throw new Exception($"Unsupported currency code [{code}]")
+            };
+        }
+    }
+
     public static class Operation
     {
         public const string Buy = "BUY";
@@ -52,6 +82,7 @@ namespace ExchangeRates.Sources
         /// Title on the page
         /// </summary>
         public string Title { get; set; }
+
         /// <summary>
         /// Title on the page
         /// </summary>
@@ -61,6 +92,7 @@ namespace ExchangeRates.Sources
         /// By default on the page
         /// </summary>
         public bool Enabled { get; set; }
+
         public Func<CurrencyItem, decimal> ValueFunc { get; set; }
     }
 
@@ -68,30 +100,31 @@ namespace ExchangeRates.Sources
     {
         public static SettingSet[] Currencies => new SettingSet[]
         {
-            new SettingSet {Key = CurrencyTypes.USD, Title = Str.USD_Title, Description = Str.USD_Desc, Enabled = true}, 
-            new SettingSet {Key = CurrencyTypes.EUR, Title = Str.EUR_Title, Description = Str.EUR_Desc, Enabled = false}, 
-            new SettingSet {Key = CurrencyTypes.GBP, Title = Str.GBP_Title, Description = Str.GBP_Desc, Enabled = false}, 
-            new SettingSet {Key = CurrencyTypes.CNY, Title = Str.CNY_Title, Description = Str.CNY_Desc, Enabled = false}, 
+            new SettingSet {Key = CurrencyTypes.USD, Title = Str.USD_Title, Description = Str.USD_Desc, Enabled = true},
+            new SettingSet {Key = CurrencyTypes.EUR, Title = Str.EUR_Title, Description = Str.EUR_Desc, Enabled = false},
+            new SettingSet {Key = CurrencyTypes.GBP, Title = Str.GBP_Title, Description = Str.GBP_Desc, Enabled = false},
+            new SettingSet {Key = CurrencyTypes.CNY, Title = Str.CNY_Title, Description = Str.CNY_Desc, Enabled = false},
         };
-        
+
         public static SettingSet[] Operations => new SettingSet[]
         {
-            new SettingSet {Key = Operation.Buy, Color = ChartColor.Green, Title = Str.Operation_Buy_Title, Description = Str.Operation_Buy_Desc, Enabled = true, ValueFunc = (x) => x.Buy}, 
+            new SettingSet {Key = Operation.Buy, Color = ChartColor.Green, Title = Str.Operation_Buy_Title, Description = Str.Operation_Buy_Desc, Enabled = true, ValueFunc = (x) => x.Buy},
             new SettingSet {Key = Operation.Sell, Color = ChartColor.Red, Title = Str.Operation_Sell_Title, Description = Str.Operation_Sell_Desc, Enabled = false, ValueFunc = (x) => x.Sell},
             new SettingSet {Key = Operation.Diff, Color = ChartColor.Red, Title = Str.Operation_Diff_Title, Description = Str.Operation_Diff_Desc, Enabled = false, ValueFunc = (x) => x.Diff},
         };
-        
+
         public static KeyValuePair<string, string>[] Range => new[]
         {
-            new KeyValuePair<string, string>("D", Str.Range_Day), 
-            new KeyValuePair<string, string>("T", Str.Range_ThreeDays), 
-            new KeyValuePair<string, string>("W", Str.Range_Week), 
-            new KeyValuePair<string, string>("M", Str.Range_Month), 
-            new KeyValuePair<string, string>("Y", Str.Range_Year), 
+            new KeyValuePair<string, string>("D", Str.Range_Day),
+            new KeyValuePair<string, string>("T", Str.Range_ThreeDays),
+            new KeyValuePair<string, string>("W", Str.Range_Week),
+            new KeyValuePair<string, string>("M", Str.Range_Month),
+            new KeyValuePair<string, string>("Y", Str.Range_Year),
             new KeyValuePair<string, string>("A", Str.Range_All)
         };
 
         public static SettingSet GetOperation(string p) => Operations.First(x => x.Key == p);
+
         public static string GetCurrencyTitle(string p) => Currencies.First(x => x.Key == p).Title;
     }
 }

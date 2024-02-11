@@ -39,14 +39,14 @@
                showtitle="@Str.VolatilityBtnTitle_Show"
                hidetitle="@Str.VolatilityBtnTitle_Hide"
                onclick="showVolatility()" />
-        
+
         <h6 class="text-center">
             @Str.VolatilityMetersTitle
         </h6>
     </div>
 
     <div class="container-fluid mt-4" style="display: flex; justify-content: space-between;">
-        @foreach (var t in CurrencyTypes.Types)
+        @foreach (var t in CurrencyTypes.RelatedCurrencyTypes)
         {
             <canvas id="canvas-@t"></canvas>
         }
@@ -59,7 +59,7 @@
     </div>
 </div>
 
-@section Scripts{
+@section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js" integrity="sha256-qSIshlknROr4J8GMHRlW3fGKrPki733tLq+qeMCR05Q=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js" integrity="sha256-xKeoJ50pzbUGkpQxDYHD7o7hxe0LaOGeguUidbq6vis=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.css" integrity="sha256-IvM9nJf/b5l2RoebiFno92E5ONttVyaEEsdemDC6iQA=" crossorigin="anonymous" />
